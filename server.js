@@ -6,14 +6,22 @@ import cors from "cors";
 const app = express();
 app.use(cors());
 
+// ---------------------- STANDINGS ----------------------
+
 const TARGET_URL =
     "https://www.frf-ajf.ro/dambovita/competitii-fotbal/liga-6-vest-14991/clasament";
 
 app.get("/api/standings", async (req, res) => {
     try {
-        const response = await fetch(TARGET_URL);
-        const html = await response.text();
+        const response = await fetch(TARGET_URL, {
+            headers: {
+                "User-Agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+                "Accept": "text/html"
+            }
+        });
 
+        const html = await response.text();
         const $ = cheerio.load(html);
         const teams = [];
 
@@ -44,22 +52,22 @@ app.get("/api/standings", async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3001;
+// ---------------------- MATCHES ----------------------
 
-app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Backend pornit pe portul ${PORT}`);
-});
-
-
-// URL program competițional
 const PROGRAM_URL =
     "https://www.frf-ajf.ro/dambovita/competitii-fotbal/liga-6-vest-14991/program";
 
 app.get("/api/matches", async (req, res) => {
     try {
-        const response = await fetch(PROGRAM_URL);
-        const html = await response.text();
+        const response = await fetch(PROGRAM_URL, {
+            headers: {
+                "User-Agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+                "Accept": "text/html"
+            }
+        });
 
+        const html = await response.text();
         const $ = cheerio.load(html);
         const matches = [];
 
@@ -68,14 +76,13 @@ app.get("/api/matches", async (req, res) => {
             if (cells.length < 4) return;
 
             const rawMatch = $(cells[0]).text().replace(/\s+/g, " ").trim();
-            if (!rawMatch.includes("-")) return; // nu e linie de meci
+            if (!rawMatch.includes("-")) return;
 
-            // filtrăm doar meciurile cu Matasaru
             if (!/matasaru/i.test(rawMatch)) return;
 
-            const round = $(cells[1]).text().trim();     // Etapa
-            const date = $(cells[2]).text().trim();      // Data (poate fi goală la viitoare îndepărtate)
-            const score = $(cells[3]).text().trim();     // Scor (poate fi gol pt. viitoare)
+            const round = $(cells[1]).text().trim();
+            const date = $(cells[2]).text().trim();
+            const score = $(cells[3]).text().trim();
 
             const parts = rawMatch.split(" - ");
             const team1 = parts[0]?.trim() || "";
@@ -97,3 +104,10 @@ app.get("/api/matches", async (req, res) => {
     }
 });
 
+// ---------------------- SERVER ----------------------
+
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Backend pornit pe portul ${PORT}`);
+});
