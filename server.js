@@ -1,42 +1,40 @@
+/* eslint-env node */
+
 import express from "express";
+import fetch from "node-fetch";
+import * as cheerio from "cheerio";
 import cors from "cors";
-import chromium from "chrome-aws-lambda";
-import puppeteer from "puppeteer-core";
-import {cheerio} from "cheerio/src/__fixtures__/fixtures.js";
 
 const app = express();
 app.use(cors());
 
-// URLs
-const STANDINGS_URL = "https://www.frf-ajf.ro/dambovita/competitii-fotbal/liga-6-vest-14991/clasament";
-const MATCHES_URL = "https://www.frf-ajf.ro/dambovita/competitii-fotbal/liga-6-vest-14991/program";
+// ———————————————————————————————
+// HEADERE necesare ca FRF să nu blocheze requestul
+// ———————————————————————————————
+const HEADERS = {
+    "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+    "Accept":
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7",
+};
 
-async function loadPage(url) {
-    const browser = await puppeteer.launch({
-        args: chromium.args,
-        executablePath: await chromium.executablePath,
-        headless: true,
-    });
+// ———————————————————————————————
+// URL-uri FRF
+// ———————————————————————————————
+const STANDINGS_URL =
+    "https://www.frf-ajf.ro/dambovita/competitii-fotbal/liga-6-vest-14991/clasament";
 
-    const page = await browser.newPage();
+const MATCHES_URL =
+    "https://www.frf-ajf.ro/dambovita/competitii-fotbal/liga-6-vest-14991/program";
 
-    await page.setUserAgent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118 Safari/537.36"
-    );
-
-    await page.goto(url, { waitUntil: "networkidle2" });
-
-    const html = await page.content();
-    await browser.close();
-    return html;
-}
-
-/* ============================
-   STANDINGS
-===============================*/
+// ============================================================
+// 🟡 API — STANDINGS (Clasament)
+// ============================================================
 app.get("/api/standings", async (req, res) => {
     try {
-        const html = await loadPage(STANDINGS_URL);
+        const response = await fetch(STANDINGS_URL, { headers: HEADERS });
+        const html = await response.text();
         const $ = cheerio.load(html);
 
         const teams = [];
@@ -45,8 +43,11 @@ app.get("/api/standings", async (req, res) => {
             const cells = $(row).find("td");
             if (cells.length < 7) return;
 
+            const loc = $(cells[0]).text().trim();
+            if (!loc || isNaN(Number(loc))) return;
+
             teams.push({
-                loc: $(cells[0]).text().trim(),
+                loc,
                 nume: $(cells[1]).text().trim(),
                 m: $(cells[2]).text().trim(),
                 v: $(cells[3]).text().trim(),
@@ -57,23 +58,26 @@ app.get("/api/standings", async (req, res) => {
         });
 
         res.json({ teams });
-    } catch (e) {
-        console.error("Standings error:", e);
-        res.json({ teams: [], error: "scraping-failed" });
+    } catch (err) {
+        console.error("Eroare scraping standings:", err);
+        res.json({ teams: [], error: "Scraping failed" });
     }
 });
 
-/* ============================
-   MATCHES
-===============================*/
+// ============================================================
+// 🟡 API — MATCHES (Program + Rezultate doar pt. Mătăsaru)
+// ============================================================
 app.get("/api/matches", async (req, res) => {
     try {
-        const html = await loadPage(MATCHES_URL);
+        const response = await fetch(MATCHES_URL, { headers: HEADERS });
+        const html = await response.text();
         const $ = cheerio.load(html);
+
         const matches = [];
 
         $("table tbody tr").each((i, row) => {
             const cells = $(row).find("td");
+
             if (cells.length < 4) return;
 
             const round = $(cells[0]).text().trim();
@@ -83,23 +87,37 @@ app.get("/api/matches", async (req, res) => {
 
             if (!teamsText.includes("-")) return;
 
-            const [team1, team2] = teamsText.split("-").map(t => t.trim());
+            const [team1, team2] = teamsText.split("-").map((t) => t.trim());
 
+            // doar meciuri unde apare Mătăsaru
             if (!/matasaru/i.test(team1) && !/matasaru/i.test(team2)) return;
 
-            matches.push({ round, date, team1, team2, score });
+            matches.push({
+                round,
+                date,
+                team1,
+                team2,
+                score,
+            });
         });
 
         res.json({ matches });
-    } catch (e) {
-        console.error("Matches error:", e);
-        res.json({ matches: [], error: "scraping-failed" });
+    } catch (err) {
+        console.error("Eroare scraping matches:", err);
+        res.json({ matches: [], error: "Scraping failed" });
     }
 });
 
-// HEALTH
+// ============================================================
+// HEALTH CHECK (pentru UptimeRobot / Render Keep Alive)
+// ============================================================
 app.get("/healthz", (req, res) => res.send("OK"));
 
-// START
+// ============================================================
+// PORNEȘTE SERVERUL
+// ============================================================
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log("Server running on " + PORT));
+
+app.listen(PORT, "0.0.0.0", () =>
+    console.log(`Backend pornit pe portul ${PORT}`)
+);
