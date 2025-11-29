@@ -9,7 +9,7 @@ const Standings = () => {
         const fetchData = async () => {
             try {
                 // Acum luăm direct din backend-ul tău Node
-                const response = await fetch("http://localhost:3001/api/standings");
+                const response = await fetch("https://afcmatasaru.onrender.com/api/standings");
 
                 if (!response.ok) {
                     throw new Error("Eroare server API");
