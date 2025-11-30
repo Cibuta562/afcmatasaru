@@ -8,8 +8,7 @@ const Standings = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Acum luăm direct din backend-ul tău Node
-                const response = await fetch("http://localhost:3001/api/standings");
+                const response = await fetch("https://afcmatasaru-production.up.railway.app/api/standings");
 
                 if (!response.ok) {
                     throw new Error("Eroare server API");
@@ -62,6 +61,10 @@ const Standings = () => {
                             <th className="p-4 hidden sm:table-cell">V</th>
                             <th className="p-4 hidden sm:table-cell">E</th>
                             <th className="p-4 hidden sm:table-cell">Î</th>
+
+                            {/* GOLAVERAJ - DOAR DESKTOP */}
+                            <th className="p-4 hidden sm:table-cell">GM–GP</th>
+
                             <th className="p-4 font-bold">Pct</th>
                         </tr>
                         </thead>
@@ -72,6 +75,8 @@ const Standings = () => {
                                 team.nume.toLowerCase().includes("matasaru") ||
                                 team.nume.toLowerCase().includes("mătăsaru");
 
+                            const golaveraj = `${team.gm ?? "-"} - ${team.gp ?? "-"}`;
+
                             return (
                                 <tr
                                     key={index}
@@ -81,9 +86,7 @@ const Standings = () => {
                                             : ""
                                     }`}
                                 >
-                                    <td className="p-4 font-bold text-gray-700">
-                                        {team.loc}
-                                    </td>
+                                    <td className="p-4 font-bold text-gray-700">{team.loc}</td>
 
                                     <td
                                         className={`p-4 font-semibold ${
@@ -99,6 +102,11 @@ const Standings = () => {
                                     <td className="p-4 hidden sm:table-cell">{team.v}</td>
                                     <td className="p-4 hidden sm:table-cell">{team.e}</td>
                                     <td className="p-4 hidden sm:table-cell">{team.i}</td>
+
+                                    {/* Golaveraj */}
+                                    <td className="p-4 hidden sm:table-cell font-semibold text-gray-700">
+                                        {golaveraj}
+                                    </td>
 
                                     <td className="p-4 font-bold text-lg text-clubSecondary">
                                         {team.pct}

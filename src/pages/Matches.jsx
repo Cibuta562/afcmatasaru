@@ -9,7 +9,7 @@ const Matches = () => {
     useEffect(() => {
         const fetchMatches = async () => {
             try {
-                const response = await fetch("http://localhost:3001/api/matches");
+                const response = await fetch("https://afcmatasaru-production.up.railway.app/api/matches");
                 if (!response.ok) throw new Error("Eroare server API.");
 
                 const data = await response.json();

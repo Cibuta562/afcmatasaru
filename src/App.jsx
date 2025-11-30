@@ -8,6 +8,8 @@ import Standings from './pages/Standings';
 import ComingSoon from "./pages/ComingSoon.jsx";
 import Cartonase from "./pages/Cartonase.jsx";
 import Contact from "./pages/Contact.jsx";
+import Footer from "./components/Footer.jsx";
+import Galerie from "./pages/Galerie.jsx";
 
 // O componentă simplă pentru meciuri (placeholder)
 
@@ -24,13 +26,10 @@ function App() {
                     <Route path="/meciuri" element={<Matches />} />
                     <Route path="/cartonase" element={<Cartonase />} />
                     <Route path="/contact" element={<Contact/>} />
+                    <Route path="/galerie" element={<Galerie />} />
                 </Routes>
             </div>
-            {/*<ComingSoon/>*/}
-
-            <footer className="bg-clubSecondary text-white py-6 text-center mt-auto">
-                <p>&copy; {new Date().getFullYear()} AFC Mătăsaru. Hai echipa!</p>
-            </footer>
+            <Footer/>
         </div>
     );
 }

@@ -20,7 +20,8 @@ app.get("/api/standings", async (req, res) => {
         $("tr").each((_, row) => {
             const cells = $(row).find("td");
 
-            if (cells.length > 7) {
+            // Trebuie să fie minim 9 coloane
+            if (cells.length >= 9) {
                 const locText = $(cells[0]).text().trim();
 
                 if (locText && !isNaN(Number(locText))) {
@@ -31,6 +32,12 @@ app.get("/api/standings", async (req, res) => {
                         v: $(cells[3]).text().trim(),
                         e: $(cells[4]).text().trim(),
                         i: $(cells[5]).text().trim(),
+
+                        // Cele noi:
+                        gm: $(cells[6]).text().trim(),
+                        gp: $(cells[7]).text().trim(),
+
+                        // Ultima coloană (pct)
                         pct: $(cells[cells.length - 1]).text().trim()
                     });
                 }

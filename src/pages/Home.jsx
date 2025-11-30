@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, Trophy, Users, ListOrdered, MapPin } from "lucide-react";
+import { Calendar, Trophy, Users, ListOrdered, MapPin, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -8,7 +8,7 @@ const Home = () => {
     useEffect(() => {
         const loadNextMatch = async () => {
             try {
-                const res = await fetch("http://localhost:3001/api/matches");
+                const res = await fetch("https://afcmatasaru-production.up.railway.app/api/matches");
                 const data = await res.json();
 
                 if (!data.matches) return;
@@ -73,35 +73,50 @@ const Home = () => {
         <div className="min-h-screen bg-gray-100">
 
             {/* HERO */}
-            <div className="relative h-[500px] bg-clubSecondary flex items-center justify-center text-center text-white">
-                <div className="absolute inset-0 bg-black opacity-50"></div>
+            <div
+                className="relative h-[700px] bg-center bg-no-repeat flex items-center justify-center text-center text-white"
+                style={{
+                    backgroundImage: "url('/hero.jpg')",
+                    backgroundSize: "cover",
+                    backgroundColor: "#1f2937" // fundal gri închis în jurul pozei (poți schimba)
+                }}
+            >
+                {/* Overlay negru */}
+                <div className="absolute inset-0 bg-black/60"></div>
+
+                {/* Text */}
                 <div className="relative z-10 px-4">
-                    <h1 className="text-5xl md:text-7xl font-bold mb-4">AFC MĂTĂSARU</h1>
-                    <p className="text-xl md:text-2xl mb-8 text-gray-200">
-                        Mândria comunității. Pasiunea jocului.
+                    <h1 className="text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg">
+                        AFC MĂTĂSARU
+                    </h1>
+
+                    <p className="text-xl md:text-2xl mb-8 text-gray-200 drop-shadow">
+                        Trup și suflet pentru echipă!
                     </p>
+
                     <Link
                         to="/meciuri"
-                        className="bg-clubPrimary hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition"
+                        className="bg-clubPrimary hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
                     >
                         Vezi Programul
                     </Link>
                 </div>
             </div>
 
+
             {/* CARDURI SECTIUNI */}
             <div className="max-w-7xl mx-auto py-12 px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
                 {/* Obiectiv */}
                 <HomeCard
-                    icon={<Trophy className="w-12 h-12 mx-auto text-clubPrimary mb-4" />}
+                    icon={<Trophy className="w-12 h-12 mx-auto text-clubPrimary mb-4"/>}
                     title="Obiectiv"
                     text="Luptăm pentru promovare și performanță constantă."
                 />
 
                 {/* Următorul Meci - DINAMIC */}
                 <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                    <Calendar className="w-12 h-12 mx-auto text-clubPrimary mb-4" />
+                    <Calendar className="w-12 h-12 mx-auto text-clubPrimary mb-4"/>
                     <h3 className="text-xl font-bold mb-2">Următorul Meci</h3>
 
                     {nextMatch ? (
@@ -129,7 +144,7 @@ const Home = () => {
 
                 {/* Clasament */}
                 <HomeCard
-                    icon={<ListOrdered className="w-12 h-12 mx-auto text-clubPrimary mb-4" />}
+                    icon={<ListOrdered className="w-12 h-12 mx-auto text-clubPrimary mb-4"/>}
                     title="Clasament"
                     text="Vezi poziția actuală în Liga 6 Vest."
                     link="/clasament"
@@ -137,7 +152,7 @@ const Home = () => {
 
                 {/* Cartonașe galbene */}
                 <HomeCard
-                    icon={<Users className="w-12 h-12 mx-auto text-yellow-500 mb-4" />}
+                    icon={<Users className="w-12 h-12 mx-auto text-yellow-500 mb-4"/>}
                     title="Cartonașe Galbene"
                     text="Situația disciplinară a jucătorilor."
                     link="/cartonase"
@@ -145,18 +160,27 @@ const Home = () => {
 
                 {/* Teren & Contact */}
                 <HomeCard
-                    icon={<MapPin className="w-12 h-12 mx-auto text-clubPrimary mb-4" />}
+                    icon={<MapPin className="w-12 h-12 mx-auto text-clubPrimary mb-4"/>}
                     title="Teren & Contact"
                     text="Harta stadionului, adresa și numărul de contact."
                     link="/contact"
                 />
+
+                {/* Galerie Foto */}
+                <HomeCard
+                    icon={<Camera className="w-12 h-12 mx-auto text-clubPrimary mb-4"/>}
+                    title="Galerie Foto"
+                    text="Imagini din meciuri, antrenamente și evenimente."
+                    link="/galerie"
+                />
+
             </div>
         </div>
     );
 };
 
 // COMPONENT CARD
-const HomeCard = ({ icon, title, text, link }) => (
+const HomeCard = ({icon, title, text, link}) => (
     <div className="bg-white p-6 rounded-lg shadow-md text-center">
         {icon}
         <h3 className="text-xl font-bold mb-2">{title}</h3>

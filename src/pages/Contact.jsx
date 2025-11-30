@@ -43,17 +43,6 @@ const Contact = () => {
                                 <p className="text-gray-600">andreiboboccibo@gmail.com</p>
                             </div>
                         </div>
-
-                        <div className="flex items-start gap-4">
-                            <Route className="w-7 h-7 text-clubPrimary" />
-                            <div>
-                                <p className="font-semibold text-gray-800">Program:</p>
-                                <p className="text-gray-600">
-                                    Luni – Vineri: 10:00 – 18:00<br />
-                                    Sâmbătă – Duminică: În zilele de meci
-                                </p>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Buttons */}
