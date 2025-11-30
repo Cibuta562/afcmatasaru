@@ -44,10 +44,13 @@ app.get("/api/standings", async (req, res) => {
     }
 });
 
-const PORT = 3001;
+// eslint-disable-next-line no-undef
+const PORT = process.env.PORT || 8080;
+
 app.listen(PORT, () => {
-    console.log(`Backend pornit pe http://localhost:${PORT}`);
+    console.log(`Server online pe portul ${PORT}`);
 });
+
 
 // URL program competițional
 const PROGRAM_URL =
